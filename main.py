@@ -13,6 +13,7 @@ for _, row in providers.iterrows():
     info = lookup_provider(
         first_name=row["first_name"],
         last_name=row["last_name"],
+        middle=row["middle"],
         state=row.get("state")
     )
     results.append(info)

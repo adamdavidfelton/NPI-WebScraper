@@ -1,14 +1,20 @@
-def score_provider(provider, first_name, last_name, state=None, city=None, taxonomy=None):
+def score_provider(provider, first_name, last_name, middle=None, state=None, city=None, taxonomy=None):
     score = 0
 
     basic = provider.get("basic", {})
     addresses = provider.get("addresses", [])
     taxonomies = provider.get("taxonomies", [])
+    provider_middle = basic.get("middle_name")
 
     if basic.get("first_name", "").lower() == first_name.lower():
         score += 1
+
     if basic.get("last_name", "").lower() == last_name.lower():
         score += 1
+
+    if provider_middle:
+        if middle and provider_middle.startswith(middle):
+            score += 10
 
     if state and any(a.get("state") == state for a in addresses):
         score += 1

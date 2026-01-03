@@ -1,23 +1,38 @@
 import requests
 from .scoring import score_provider
 
-def lookup_provider(first_name, last_name, state=None, city=None, taxonomy=None):
+def lookup_provider(first_name, last_name, middle=None, state=None, city=None, taxonomy=None):
     url = "https://npiregistry.cms.hhs.gov/api/"
-
+    #base params
     params = {
         "version": "2.1",
         "first_name": first_name,
         "last_name": last_name,
-        "limit": 10
-    }
+        "limit": 10  }
+    #middle name or initial
+    if middle is None or not isinstance(middle, str) or middle.strip() == "":
+        middle = None
+    if middle:
+        if len(middle) == 1:
+            params["middle_initial"] = middle
+        else:
+            params["middle_name"] = middle
 
+    #optional filters
     if state:
         params["state"] = state
+    if city:
+        params["city"] = city
+    if taxonomy:
+        params["taxonomy"] = taxonomy
 
     response = requests.get(url, params=params).json()
     results = response.get("results", [])
     if not results:
         return None
+
+
+
 
     # Score all providers
     scored = []
@@ -26,6 +41,7 @@ def lookup_provider(first_name, last_name, state=None, city=None, taxonomy=None)
             p,
             first_name=first_name,
             last_name=last_name,
+            middle=middle,
             state=state,
             city=city,
             taxonomy=taxonomy
@@ -50,6 +66,7 @@ def lookup_provider(first_name, last_name, state=None, city=None, taxonomy=None)
         "npi": provider["number"],
         "first_name": provider["basic"].get("first_name"),
         "last_name": provider["basic"].get("last_name"),
+        "middle_name": provider["basic"].get("middle_name"),
         "address": practice.get("address_1"),
         "city": practice.get("city"),
         "state": practice.get("state"),
@@ -57,4 +74,5 @@ def lookup_provider(first_name, last_name, state=None, city=None, taxonomy=None)
         "fax": practice.get("fax_number"),
         "confidence": best_score
     }
+
 
