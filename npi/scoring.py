@@ -14,7 +14,7 @@ def score_provider(provider, first_name, last_name, middle=None, state=None, cit
 
     if provider_middle:
         if middle and provider_middle.startswith(middle):
-            score += 10
+            score += 1
 
     if state and any(a.get("state") == state for a in addresses):
         score += 1
